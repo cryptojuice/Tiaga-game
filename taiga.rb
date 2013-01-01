@@ -1,4 +1,5 @@
 class Disks
+  attr_accessor :front_or_back
 
   def initialize
     @front_or_back = []
@@ -21,19 +22,19 @@ class Disks
   def deal
     @front_or_back = 10.times.map{1+Random.rand(2)}.to_a
     @delt_disk = [0,1,2,3,4,5,6,7,8,9].shuffle
-    until less_then_four_animals do
+    until less_then_four_animals? do
       deal
     end
   end
  
 
-  def draw_board
+  def draw
     @delt_disk.zip(@front_or_back) do |i, j|
       puts "Disk ##{i+1} #{@disk[i][j]}"
     end
   end
 
-  def less_then_four_animals
+  def less_then_four_animals?
     red_fox = 0
     beaver = 0
     snowy_owl = 0
@@ -57,7 +58,7 @@ class Disks
   end
 
 
-  def flip_disk(disk_number)
+  def flip(disk_number)
     index = @delt_disk.index(disk_number-1)
 
     if front_or_back[index] == 1
@@ -65,7 +66,6 @@ class Disks
     elsif front_or_back[index] == 2
       front_or_back[index] = 1
     end
-    draw_board
   end
 
 end
@@ -95,7 +95,7 @@ class Cards
     @card[9] = "beaver"
   end
 
-  def deal_cards 
+  def deal 
     @delt_cards = [0,1,2,3,4,5,6,7,8,9].shuffle
   end
 
@@ -146,7 +146,7 @@ class Taiga
 
     @number_of_players = gets.to_i
     @players = Players.new(@number_of_players)
-    @board = Disks.new
+    @disks = Disks.new
     @cards = Cards.new
   end
 
@@ -154,13 +154,30 @@ class Taiga
   def run
     game_end = false
 
+    @disks.deal
+    @disks.draw
+
+    @cards.deal
+
     until game_end do
-      @board.deal
-      @board.draw_board
-      game_end = true
+
+      command = gets.chomp
+
+      case command
+        when "grab card"
+          @cards.pick_up_card_from_deck
+        when "flip"
+          puts "Disk number?"
+          disk_number = gets.to_i
+          @disks.flip(disk_number)
+          puts @disks.less_then_four_animals?
+          @disks.draw
+
+        when "quit"
+            game_end = true
+      end
+
     end
-
-
 
   end
 
